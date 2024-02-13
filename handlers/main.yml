@@ -1,0 +1,14 @@
+# code: language=ansible
+---
+
+- name: "Restart ipsec"
+  ansible.builtin.service:
+    name: "{{ vpn_ipsec_service }}"
+    state: restarted
+  become: true
+
+- name: "Restart xl2tpd"
+  ansible.builtin.service:
+    name: "{{ vpn_l2tp_service }}"
+    state: restarted
+  become: true

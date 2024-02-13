@@ -1,0 +1,25 @@
+# code: language=ansible
+---
+
+# 00 # Always
+
+- name: "VPN | Always"
+  ansible.builtin.include_tasks: "always/main.yml"
+  tags:
+    - always
+
+# 01 # Install
+
+- name: "VPN | Install"
+  ansible.builtin.include_tasks: "install/{{ dist_pkg_mgr }}.yml"
+  tags:
+    - vpn
+    - vpn-install
+
+# 02 # Configure
+
+- name: "VPN | Configure"
+  ansible.builtin.include_tasks: "configure/main.yml"
+  tags:
+    - vpn
+    - vpn-configure

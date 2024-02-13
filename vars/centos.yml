@@ -1,0 +1,17 @@
+# code: language=ansible
+---
+
+# 00 # Always
+
+vpn_always_packages:
+  - "dnf-utils"
+  - "epel-release"
+  - "python3-libselinux"
+  - "python3-policycoreutils"
+
+# 02 # Configure
+
+vpn_ipsec_config_file: "/etc/strongswan/ipsec.conf"
+vpn_ipsec_secrets_file: "/etc/strongswan/ipsec.secrets"
+
+vpn_ipsec_service: "strongswan-starter"

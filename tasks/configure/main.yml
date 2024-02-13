@@ -1,0 +1,92 @@
+# code: language=ansible
+---
+
+- name: "VPN | Configure | ipsec.conf"
+  ansible.builtin.template:
+    src: ipsec.conf.j2
+    dest: "{{ vpn_ipsec_config_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    backup: false
+  notify: Restart ipsec
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
+
+- name: "VPN | Configure | ipsec.secrets"
+  ansible.builtin.template:
+    src: ipsec.secrets.j2
+    dest: "{{ vpn_ipsec_secrets_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    backup: false
+  notify: Restart ipsec
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
+
+- name: "VPN | Configure | xl2tpd.conf"
+  ansible.builtin.template:
+    src: xl2tpd.conf.j2
+    dest: "{{ vpn_l2tp_config_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    backup: false
+  notify: Restart xl2tpd
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
+
+- name: "VPN | Configure | options.xl2tpd"
+  ansible.builtin.template:
+    src: options.xl2tpd.j2
+    dest: "{{ vpn_l2tp_options_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    backup: false
+  notify: Restart xl2tpd
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
+
+- name: "VPN | Configure | chap-secrets"
+  ansible.builtin.template:
+    src: chap-secrets.j2
+    dest: "{{ vpn_ppp_chap_secrets_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    backup: false
+  notify: Restart xl2tpd
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
+
+- name: "VPN | Configure | Enable IPSec service"
+  ansible.builtin.service:
+    name: "{{ vpn_ipsec_service }}"
+    enabled: true
+    state: started
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
+
+- name: "VPN | Configure | Enable xl2tpd service"
+  ansible.builtin.service:
+    name: "{{ vpn_l2tp_service }}"
+    enabled: true
+    state: started
+  become: true
+  tags:
+    - vpn
+    - vpn-configure
