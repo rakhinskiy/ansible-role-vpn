@@ -13,6 +13,7 @@ class FilterModule:
     """
     Custom jinja filters
     """
+
     def filters(self) -> dict:
         """
         :return: filters dict
