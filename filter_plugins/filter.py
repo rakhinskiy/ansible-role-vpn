@@ -1,63 +1,95 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import Any
+
+from ansible.parsing.yaml.objects import (
+    AnsibleUnicode,
+    AnsibleVaultEncryptedUnicode,
+)
+from ansible.utils.unsafe_proxy import AnsibleUnsafeText
 
 
 class FilterModule:
-    STRING_CLASSES: ClassVar[list[str]] = [
-        "str",
-        "string",
-        "AnsibleUnicode",
-        "AnsibleUnsafeText",
-        "AnsibleVaultEncryptedUnicode",
-    ]
-
-    def filters(self):
+    """
+    Custom jinja filters
+    """
+    def filters(self) -> dict:
+        """
+        :return: filters dict
+        """
         return {
             "is_list": self.is_list,
-            "is_ne_list": self.is_not_empty_list,
+            "is_ne_list": self.is_ne_list,
+            "is_ne_list_dicts": self.is_ne_list_dicts,
             "is_dict": self.is_dict,
-            "is_dicts_list": self.is_dicts_list,
-            "is_ne_dict": self.is_not_empty_dict,
-            "is_string": self.is_string,
-            "is_ne_string": self.is_not_empty_string,
+            "is_ne_dict": self.is_ne_dict,
+            "is_str": self.is_str,
+            "is_ne_str": self.is_ne_str,
         }
 
     @staticmethod
-    def is_list(var, *args, **kwargs):
-        return var and var.__class__.__name__ == "list"
+    def is_list(var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if var is list
+        """
+        return var and isinstance(var, list)
+
+    def is_ne_list(self, var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if var is not empty list
+        """
+        return self.is_list(var) and len(var) > 0
 
     @staticmethod
-    def is_not_empty_list(var, *args, **kwargs):
-        if var and isinstance(var, list) and len(var) > 0:
-            return True
-        return False
+    def is_dict(var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if variable is dict
+        """
+        return var and isinstance(var, dict)
 
-    @staticmethod
-    def is_dict(var, *args, **kwargs):
-        return var and var.__class__.__name__ == "dict"
+    def is_ne_dict(self, var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if variable is not empty dict
+        """
+        return self.is_dict(var) and var != {}
 
-    @staticmethod
-    def is_not_empty_dict(var, *args, **kwargs):
-        return var and var.__class__.__name__ == "dict" and var != {}
-
-    @staticmethod
-    def is_dicts_list(var, *args, **kwargs):
-        if not var.__class__.__name__ == "list" or len(var) == 0:
+    def is_ne_list_dicts(self, var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if variable is list of dicts
+        """
+        if not self.is_ne_list(var):
             return False
 
-        for d in var:
-            if not d.__class__.__name__ == "dict" or d == {}:
+        for element in var:
+            if not self.is_ne_dict(element):
                 return False
 
         return True
 
-    def is_string(self, var, *args, **kwargs):
-        return var and var.__class__.__name__ in self.STRING_CLASSES
-
-    def is_not_empty_string(self, var, *args, **kwargs):
-        return (
-            var
-            and var.__class__.__name__ in self.STRING_CLASSES
-            and len(var) > 0
+    @staticmethod
+    def is_str(var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if variable is one of instance of string
+        """
+        return var and isinstance(
+            var,
+            (
+                str,
+                AnsibleUnicode,
+                AnsibleVaultEncryptedUnicode,
+                AnsibleUnsafeText,
+            ),
         )
+
+    def is_ne_str(self, var: Any) -> bool:
+        """
+        :param var: any variable
+        :return: true if variable is one of instance of string and not empty
+        """
+        return self.is_str(var) and len(var) > 0
